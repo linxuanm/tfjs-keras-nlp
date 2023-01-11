@@ -141,8 +141,6 @@ export class EinsumDense extends tfl.layers.Layer {
     }
 }
 
-tfc.serialization.registerClass(EinsumDense);
-
 export interface SplitStringResult {
     weightShape: tfl.Shape,
     biasShape?: tfl.Shape,
