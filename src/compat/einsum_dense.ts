@@ -68,7 +68,7 @@ export class EinsumDense extends tfl.layers.Layer {
         const shapeData = analyzeEinsumString(
             this.equation, this.biasAxes, oneShape, this.partialOutputShape
         );
-
+        
         const { weightShape, outputShape, biasShape } = shapeData;
         this.fullOutputShape = outputShape;
         this.kernel = this.addWeight(
