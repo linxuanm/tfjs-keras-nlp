@@ -1,9 +1,7 @@
-import * as tfc from '@tensorflow/tfjs-core';
-import * as tfl from '@tensorflow/tfjs-layers';
+import * as tf from '@tensorflow/tfjs';
 
 import { LayerArgs } from '@tensorflow/tfjs-layers/dist/engine/topology';
 import { Initializer, getInitializer, serializeInitializer } from '@tensorflow/tfjs-layers/dist/initializers';
-import { Kwargs } from '@tensorflow/tfjs-layers/dist/types';
 import { getExactlyOneShape, getExactlyOneTensor } from '@tensorflow/tfjs-layers/dist/utils/types_utils';
 
 import { InitializerId } from '../../compat/keras_format';
@@ -15,11 +13,11 @@ export declare interface PositionalEmbeddingLayerArgs extends LayerArgs {
     initializer?: InitializerId
 };
 
-export class PositionalEmbedding extends tfl.layers.Layer {
+export class PositionalEmbedding extends tf.layers.Layer {
 
     sequenceLength: number;
     initializer: Initializer;
-    positionalEmbeddings?: tfl.LayerVariable;
+    positionalEmbeddings?: tf.LayerVariable;
 
     constructor(args: PositionalEmbeddingLayerArgs) {
         super(args);
@@ -27,7 +25,7 @@ export class PositionalEmbedding extends tfl.layers.Layer {
         this.initializer = getInitializer(args.initializer || "glorotUniform");
     }
 
-    override getConfig(): tfc.serialization.ConfigDict {
+    override getConfig(): tf.serialization.ConfigDict {
         const config = {
             sequenceLength: this.sequenceLength,
             initializer: serializeInitializer(this.initializer)
@@ -38,7 +36,7 @@ export class PositionalEmbedding extends tfl.layers.Layer {
         return {...baseConfig, ...config};
     }
 
-    override build(inputShape: tfl.Shape | tfl.Shape[]): void {
+    override build(inputShape: tf.Shape | tf.Shape[]): void {
         const oneShape = getExactlyOneShape(inputShape);
         const featureSize = oneShape[oneShape.length - 1];
 
@@ -55,9 +53,9 @@ export class PositionalEmbedding extends tfl.layers.Layer {
     }
 
     override call(
-        inputs: tfc.Tensor<tfc.Rank> | tfc.Tensor<tfc.Rank>[]
-    ): tfc.Tensor<tfc.Rank> | tfc.Tensor<tfc.Rank>[] {
-        return tfc.tidy(() => {
+        inputs: tf.Tensor<tf.Rank> | tf.Tensor<tf.Rank>[]
+    ): tf.Tensor<tf.Rank> | tf.Tensor<tf.Rank>[] {
+        return tf.tidy(() => {
             const tensor = getExactlyOneTensor(inputs);
 
             // TF.js does not support RaggedTensor atm.
@@ -65,14 +63,17 @@ export class PositionalEmbedding extends tfl.layers.Layer {
         });
     }
 
-    trimAndBroadcastPositionEmbeddings(shape: tfl.Shape): tfc.Tensor {
+    trimAndBroadcastPositionEmbeddings(shape: tf.Shape): tf.Tensor {
         const inputLength = shape[shape.length - SEQUENCE_AXIS]!;
-        const positionEmbeddings = tfc.slice(
+        const positionEmbeddings = tf.slice(
             this.positionalEmbeddings!.read(),
             [0, 0],
             [inputLength, -1]
         );
 
-        return tfc.broadcastTo(positionEmbeddings, shape);
+        return tf.broadcastTo(
+            positionEmbeddings,
+            [...shape].map(dim => dim == null ? -1 : dim)
+        );
     }
 }

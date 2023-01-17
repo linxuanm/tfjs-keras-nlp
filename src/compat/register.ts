@@ -1,7 +1,7 @@
 // Import this file to register all Tensorflow Serializable under compat.
 
-import * as tfc from '@tensorflow/tfjs-core';
+import * as tf from '@tensorflow/tfjs';
 
 import { EinsumDense } from './einsum_dense';
 
-tfc.serialization.registerClass(EinsumDense);
+tf.serialization.registerClass(EinsumDense);

@@ -1,3 +1,3 @@
-export { EinsumDense } from './einsum_dense';
+export { EinsumDense, EinsumDenseLayerArgs } from './einsum_dense';
 
 import './register';

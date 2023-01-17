@@ -1,5 +1,4 @@
-import * as tfc from '@tensorflow/tfjs-core';
-import * as tfl from '@tensorflow/tfjs-layers';
+import * as tf from '@tensorflow/tfjs';
 
 import { Activation, getActivation, serializeActivation } from '@tensorflow/tfjs-layers/dist/activations';
 import { Initializer, getInitializer, serializeInitializer } from '@tensorflow/tfjs-layers/dist/initializers';
@@ -27,13 +26,13 @@ export declare interface EinsumDenseLayerArgs {
     biasConstraint?: ConstraintId
 };
 
-export class EinsumDense extends tfl.layers.Layer {
+export class EinsumDense extends tf.layers.Layer {
 
     equation: string;
-    partialOutputShape: tfl.Shape;
-    fullOutputShape?: tfl.Shape;
-    kernel?: tfl.LayerVariable;
-    bias?: tfl.LayerVariable;
+    partialOutputShape: tf.Shape;
+    fullOutputShape?: tf.Shape;
+    kernel?: tf.LayerVariable;
+    bias?: tf.LayerVariable;
     biasAxes?: string;
     activation: Activation;
     kernelInitializer: Initializer;
@@ -63,7 +62,7 @@ export class EinsumDense extends tfl.layers.Layer {
         this.biasConstraint = undefinedWrapper(getConstraint, args.biasConstraint);
     }
 
-    override build(inputShape: tfl.Shape | tfl.Shape[]): void {
+    override build(inputShape: tf.Shape | tf.Shape[]): void {
         const oneShape = getExactlyOneShape(inputShape);
         const shapeData = analyzeEinsumString(
             this.equation, this.biasAxes, oneShape, this.partialOutputShape
@@ -97,12 +96,12 @@ export class EinsumDense extends tfl.layers.Layer {
     }
 
     override computeOutputShape(
-        inputShape: tfl.Shape | tfl.Shape[]
-    ): tfl.Shape | tfl.Shape[] {
-        return <tfl.Shape>this.fullOutputShape;
+        inputShape: tf.Shape | tf.Shape[]
+    ): tf.Shape | tf.Shape[] {
+        return <tf.Shape>this.fullOutputShape;
     }
 
-    override getConfig(): tfc.serialization.ConfigDict {
+    override getConfig(): tf.serialization.ConfigDict {
         const config = {
             outputShape: this.partialOutputShape,
             equation: this.equation,
@@ -123,13 +122,13 @@ export class EinsumDense extends tfl.layers.Layer {
     }
 
     override call(
-        inputs: tfc.Tensor<tfc.Rank> | tfc.Tensor<tfc.Rank>[], kwargs: Kwargs
-    ): tfc.Tensor<tfc.Rank> | tfc.Tensor<tfc.Rank>[] {
-        return tfc.tidy(() => {
+        inputs: tf.Tensor<tf.Rank> | tf.Tensor<tf.Rank>[], kwargs: Kwargs
+    ): tf.Tensor<tf.Rank> | tf.Tensor<tf.Rank>[] {
+        return tf.tidy(() => {
             const tensor = getExactlyOneTensor(inputs);
 
-            let ret = tfc.einsum(this.equation, tensor, this.kernel!.read());
-            if (this.bias !== undefined) ret = tfc.add(ret, this.bias.read());
+            let ret = tf.einsum(this.equation, tensor, this.kernel!.read());
+            if (this.bias !== undefined) ret = tf.add(ret, this.bias.read());
             if (this.activation !== undefined) ret = this.activation.apply(ret);
             
             return ret;
@@ -142,16 +141,16 @@ export class EinsumDense extends tfl.layers.Layer {
 }
 
 export interface SplitStringResult {
-    weightShape: tfl.Shape,
-    biasShape?: tfl.Shape,
-    outputShape: tfl.Shape
+    weightShape: tf.Shape,
+    biasShape?: tf.Shape,
+    outputShape: tf.Shape
 }
 
 export function analyzeEinsumString(
     equation: string,
     biasAxes: string | undefined,
-    inputShape: tfl.Shape,
-    outputShape: tfl.Shape,
+    inputShape: tf.Shape,
+    outputShape: tf.Shape,
 ): SplitStringResult {
     const dotReplacedString = equation.replace(/\.\.\./g, '0');
 
@@ -181,8 +180,8 @@ export function analyzeEinsumString(
 function analyzeSplitString(
     splitString: RegExpMatchArray,
     biasAxes: string | undefined,
-    inputShape: tfl.Shape,
-    outputShape: tfl.Shape,
+    inputShape: tf.Shape,
+    outputShape: tf.Shape,
     leftElided: boolean = false
 ): SplitStringResult {
     const inputSpec = splitString[1];
@@ -250,7 +249,7 @@ function analyzeSplitString(
         );
     }
 
-    let biasShape: tfl.Shape | undefined;
+    let biasShape: tf.Shape | undefined;
     if (biasAxes != null) {
         const numLeftElided = leftElided ? elided : 0;
         const idxMap: { [key: string]: number } = {};

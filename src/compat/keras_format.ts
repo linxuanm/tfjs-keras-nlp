@@ -1,4 +1,4 @@
-import * as tfc from '@tensorflow/tfjs-core';
+import * as tf from '@tensorflow/tfjs';
 
 import { Activation } from '@tensorflow/tfjs-layers/dist/activations';
 import { ActivationIdentifier } from "@tensorflow/tfjs-layers/dist/keras_format/activation_config";
@@ -9,20 +9,20 @@ import { Regularizer, RegularizerIdentifier } from '@tensorflow/tfjs-layers/dist
 
 export type ActivationId
     = ActivationIdentifier
-    | tfc.serialization.ConfigDict
+    | tf.serialization.ConfigDict
     | Activation;
 
 export type ConstraintId
     = ConstraintIdentifier
-    | tfc.serialization.ConfigDict
+    | tf.serialization.ConfigDict
     | Constraint;
 
 export type InitializerId
     = InitializerIdentifier
     | Initializer
-    | tfc.serialization.ConfigDict;
+    | tf.serialization.ConfigDict;
 
 export type RegularizerId
     = RegularizerIdentifier
-    | tfc.serialization.ConfigDict
+    | tf.serialization.ConfigDict
     | Regularizer;
