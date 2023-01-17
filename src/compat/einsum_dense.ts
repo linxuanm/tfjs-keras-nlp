@@ -106,15 +106,15 @@ export class EinsumDense extends tfl.layers.Layer {
         const config = {
             outputShape: this.partialOutputShape,
             equation: this.equation,
-            "activation": serializeActivation(this.activation),
-            "biasAxes": this.biasAxes || null,
-            "kernelInitializer": serializeInitializer(this.kernelInitializer),
-            "biasInitializer": serializeInitializer(this.biasInitializer),
-            "kernelRegularizer": nullWrapper(serializeRegularizer, this.kernelRegularizer),
-            "biasRegularizer": nullWrapper(serializeRegularizer, this.biasRegularizer),
-            "activityRegularizer": nullWrapper(serializeRegularizer, this.activityRegularizer),
-            "kernelConstraint": nullWrapper(serializeConstraint, this.kernelConstraint),
-            "biasConstraint": nullWrapper(serializeConstraint, this.biasConstraint)
+            activation: serializeActivation(this.activation),
+            biasAxes: this.biasAxes || null,
+            kernelInitializer: serializeInitializer(this.kernelInitializer),
+            biasInitializer: serializeInitializer(this.biasInitializer),
+            kernelRegularizer: nullWrapper(serializeRegularizer, this.kernelRegularizer),
+            biasRegularizer: nullWrapper(serializeRegularizer, this.biasRegularizer),
+            activityRegularizer: nullWrapper(serializeRegularizer, this.activityRegularizer),
+            kernelConstraint: nullWrapper(serializeConstraint, this.kernelConstraint),
+            biasConstraint: nullWrapper(serializeConstraint, this.biasConstraint)
         };
 
         const baseConfig = super.getConfig();
