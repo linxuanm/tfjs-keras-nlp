@@ -1,16 +1,9 @@
 import * as tf from '@tensorflow/tfjs';
 
-import { Activation, getActivation, serializeActivation } from '@tensorflow/tfjs-layers/dist/activations';
-import { Initializer, getInitializer, serializeInitializer } from '@tensorflow/tfjs-layers/dist/initializers';
-import { Constraint, getConstraint, serializeConstraint } from '@tensorflow/tfjs-layers/dist/constraints';
-import { Regularizer, getRegularizer, serializeRegularizer } from '@tensorflow/tfjs-layers/dist/regularizers';
-import { getExactlyOneShape, getExactlyOneTensor } from '@tensorflow/tfjs-layers/dist/utils/types_utils';
-
+import { ActivationId, InitializerId, ConstraintId, RegularizerId } from './keras_format';
 import {
-    ActivationId, InitializerId, ConstraintId, RegularizerId
-} from './keras_format';
-import { nullWrapper, undefinedWrapper } from './tfjs_fix';
-import { Kwargs } from '@tensorflow/tfjs-layers/dist/types';
+    Activations, Constraints, Initializers, Regularizers, Kwargs, TypeUtils
+} from "./tfjs_fix";
 
 export declare interface EinsumDenseLayerArgs {
     equation: string,
@@ -34,13 +27,13 @@ export class EinsumDense extends tf.layers.Layer {
     kernel?: tf.LayerVariable;
     bias?: tf.LayerVariable;
     biasAxes?: string;
-    activation: Activation;
-    kernelInitializer: Initializer;
-    biasInitializer: Initializer;
-    kernelRegularizer?: Regularizer;
-    biasRegularizer?: Regularizer;
-    kernelConstraint?: Constraint;
-    biasConstraint?: Constraint;
+    activation: Activations.Activation;
+    kernelInitializer: Initializers.Initializer;
+    biasInitializer: Initializers.Initializer;
+    kernelRegularizer?: Regularizers.Regularizer;
+    biasRegularizer?: Regularizers.Regularizer;
+    kernelConstraint?: Constraints.Constraint;
+    biasConstraint?: Constraints.Constraint;
     
     constructor(args: EinsumDenseLayerArgs) {
         super();
@@ -51,19 +44,19 @@ export class EinsumDense extends tf.layers.Layer {
         else
             this.partialOutputShape = args.output_shape;
         this.biasAxes = args.bias_axes;
-        this.activation = getActivation(args.activation || "linear");
-        this.kernelInitializer = getInitializer(args.kernelInitializer || "glorotUniform");
-        this.biasInitializer = getInitializer(args.biasInitializer || "zeros");
+        this.activation = Activations.getActivation(args.activation);
+        this.kernelInitializer = Initializers.getInitializer(args.kernelInitializer || "glorotUniform");
+        this.biasInitializer = Initializers.getInitializer(args.biasInitializer || "zeros");
 
-        this.kernelRegularizer = undefinedWrapper(getRegularizer, args.kernelRegularizer);
-        this.biasRegularizer = undefinedWrapper(getRegularizer, args.biasRegularizer);
+        this.kernelRegularizer = Regularizers.getRegularizer(args.kernelRegularizer);
+        this.biasRegularizer = Regularizers.getRegularizer(args.biasRegularizer);
         
-        this.kernelConstraint = undefinedWrapper(getConstraint, args.kernelConstraint);
-        this.biasConstraint = undefinedWrapper(getConstraint, args.biasConstraint);
+        this.kernelConstraint = Constraints.getConstraint(args.kernelConstraint);
+        this.biasConstraint = Constraints.getConstraint(args.biasConstraint);
     }
 
     override build(inputShape: tf.Shape | tf.Shape[]): void {
-        const oneShape = getExactlyOneShape(inputShape);
+        const oneShape = TypeUtils.getExactlyOneShape(inputShape);
         const shapeData = analyzeEinsumString(
             this.equation, this.biasAxes, oneShape, this.partialOutputShape
         );
@@ -105,15 +98,15 @@ export class EinsumDense extends tf.layers.Layer {
         const config = {
             outputShape: this.partialOutputShape,
             equation: this.equation,
-            activation: serializeActivation(this.activation),
+            activation: Activations.serializeActivation(this.activation),
             biasAxes: this.biasAxes || null,
-            kernelInitializer: serializeInitializer(this.kernelInitializer),
-            biasInitializer: serializeInitializer(this.biasInitializer),
-            kernelRegularizer: nullWrapper(serializeRegularizer, this.kernelRegularizer),
-            biasRegularizer: nullWrapper(serializeRegularizer, this.biasRegularizer),
-            activityRegularizer: nullWrapper(serializeRegularizer, this.activityRegularizer),
-            kernelConstraint: nullWrapper(serializeConstraint, this.kernelConstraint),
-            biasConstraint: nullWrapper(serializeConstraint, this.biasConstraint)
+            kernelInitializer: Initializers.serializeInitializer(this.kernelInitializer),
+            biasInitializer: Initializers.serializeInitializer(this.biasInitializer),
+            kernelRegularizer: Regularizers.serializeRegularizer(this.kernelRegularizer),
+            biasRegularizer: Regularizers.serializeRegularizer(this.biasRegularizer),
+            activityRegularizer: Regularizers.serializeRegularizer(this.activityRegularizer),
+            kernelConstraint: Constraints.serializeConstraint(this.kernelConstraint),
+            biasConstraint: Constraints.serializeConstraint(this.biasConstraint)
         };
 
         const baseConfig = super.getConfig();
@@ -125,7 +118,7 @@ export class EinsumDense extends tf.layers.Layer {
         inputs: tf.Tensor<tf.Rank> | tf.Tensor<tf.Rank>[], kwargs: Kwargs
     ): tf.Tensor<tf.Rank> | tf.Tensor<tf.Rank>[] {
         return tf.tidy(() => {
-            const tensor = getExactlyOneTensor(inputs);
+            const tensor = TypeUtils.getExactlyOneTensor(inputs);
 
             let ret = tf.einsum(this.equation, tensor, this.kernel!.read());
             if (this.bias !== undefined) ret = tf.add(ret, this.bias.read());

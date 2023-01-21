@@ -1,28 +1,23 @@
 import * as tf from '@tensorflow/tfjs';
 
-import { Activation } from '@tensorflow/tfjs-layers/dist/activations';
-import { ActivationIdentifier } from "@tensorflow/tfjs-layers/dist/keras_format/activation_config";
-import { Initializer, InitializerIdentifier } from '@tensorflow/tfjs-layers/dist/initializers';
-import { Constraint, ConstraintIdentifier } from '@tensorflow/tfjs-layers/dist/constraints';
-import { Regularizer, RegularizerIdentifier } from '@tensorflow/tfjs-layers/dist/regularizers';
-
+import { Activations, Constraints, Initializers, Regularizers } from "./tfjs_fix";
 
 export type ActivationId
-    = ActivationIdentifier
+    = Activations.ActivationIdentifier
     | tf.serialization.ConfigDict
-    | Activation;
+    | Activations.Activation;
 
 export type ConstraintId
-    = ConstraintIdentifier
+    = Constraints.ConstraintIdentifier
     | tf.serialization.ConfigDict
-    | Constraint;
+    | Constraints.Constraint;
 
 export type InitializerId
-    = InitializerIdentifier
-    | Initializer
+    = Initializers.InitializerIdentifier
+    | Initializers.Initializer
     | tf.serialization.ConfigDict;
 
 export type RegularizerId
-    = RegularizerIdentifier
+    = Regularizers.RegularizerIdentifier
     | tf.serialization.ConfigDict
-    | Regularizer;
+    | Regularizers.Regularizer;
