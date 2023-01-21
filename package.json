@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "Javascript implementation of Keras layers for Natural Language Processing (keras-nlp).",
   "scripts": {
-    "test": "env TS_NODE_COMPILER_OPTIONS='{\"module\": \"commonjs\" }' mocha -r ts-node/register 'tests/**/*.ts'"
+    "test": "mocha -r ts-node/register 'tests/**/*.ts'"
   },
   "repository": {
     "type": "git",
